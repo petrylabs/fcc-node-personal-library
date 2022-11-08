@@ -32,7 +32,7 @@ module.exports = function (app) {
         }
       ], function (err, results) {
         if(err) {
-          res.status(500).json( { 'error' : err.message } );
+          res.status(400).json( { 'error' : err.message } );
           return;
         }
           const resObj = results.books.map(book => {
@@ -55,7 +55,7 @@ module.exports = function (app) {
     .post(function (req, res) {
       let title = req.body.title;
       if(!title) {
-        res.status(500).send('missing required field title');
+        res.status(400).send('missing required field title');
         return;
       }      
       const new_book = new Book({
@@ -70,7 +70,7 @@ module.exports = function (app) {
           })
         })
        .catch(err => {
-          res.status(500)
+          res.status(400)
             .json({
               result: 'FAIL',
               message: err.message
@@ -94,7 +94,7 @@ module.exports = function (app) {
         }
       }, (err, results) => {
           if(err) {
-            res.status(500).json(err);
+            res.status(400).json(err);
           }
           res.status(200).json(results);
           //.send('complete delete successful');
@@ -116,7 +116,7 @@ module.exports = function (app) {
         }
       }, (err, results) => {
         if(err || results.book == null) {
-          const resWithCode = res.status(500);
+          const resWithCode = res.status(400);
           return results.book == null || (err.name == 'CastError' 
             && err.path == '_id')
             ? resWithCode.send('no book exists')
@@ -137,7 +137,7 @@ module.exports = function (app) {
       let comment = req.body.comment;
       
       if(!comment)
-        return res.status(500).send('missing required field comment');
+        return res.status(400).send('missing required field comment');
 
       async.waterfall([
         function book_find(callback) {
@@ -176,7 +176,7 @@ module.exports = function (app) {
         }
       ], function(err, results) {
         if(err) {
-          const resWithCode = res.status(500);
+          const resWithCode = res.status(400);
           return err.name == 'CastError' 
             && err.path == '_id'
             ? resWithCode.send('no book exists')
@@ -211,7 +211,7 @@ module.exports = function (app) {
         }
       }, (err, results) => {
           if(err) {
-            const resWithCode = res.status(500);
+            const resWithCode = res.status(400);
             return err.name == 'CastError' 
               && (err.path == 'book' || err.path == '_id')
               ? resWithCode.send('no book exists')
