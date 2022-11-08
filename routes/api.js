@@ -143,12 +143,7 @@ module.exports = function (app) {
         function book_find(callback) {
           Book
             .findById(bookid)
-            .then(book => 
-              callback(null, book)
-            )
-            .catch(err => 
-              callback(err)
-            )
+            .exec(callback)
         },
         function comment_create(book, callback) {
           new Comment({
