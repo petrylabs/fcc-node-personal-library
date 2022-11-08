@@ -25,7 +25,7 @@ suite('Functional Tests', function() {
         'title': 'My Test Book'
       })
     if (result && result.body) 
-      testItems.push(result.body.id);
+      testItems.push(result.body._id);
   })
 
   suite('Routing tests', function() {
