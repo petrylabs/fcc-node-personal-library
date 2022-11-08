@@ -170,10 +170,10 @@ module.exports = function (app) {
             })
         }
       ], function(err, results) {
-        if(err) {
+        if(err || results.book == null) {
           const resWithCode = res.status(200);
-          return err.name == 'CastError' 
-            && err.path == '_id'
+          return results.book == null || (err.name == 'CastError' 
+            && err.path == '_id')
             ? resWithCode.send('no book exists')
             : resWithCode.json({...err})
         }
