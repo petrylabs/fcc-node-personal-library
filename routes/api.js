@@ -203,7 +203,7 @@ module.exports = function (app) {
       async.parallel({
         book(callback) {
           Book
-          .deleteOne({id: bookid})
+          .deleteOne({_id: bookid})
           .exec(callback)
         },
         comments(callback) {
@@ -212,8 +212,6 @@ module.exports = function (app) {
             .exec(callback)
         }
       }, (err, result) => {
-        console.log('> err', err);
-        console.log('> result', result);
           if(err) {
             return res.status(FAIL_CODE).json(err);
           }
