@@ -15,6 +15,9 @@ const async = require('async');
 
 module.exports = function (app) {
 
+  const SUCCESS_CODE = 200;
+  const FAIL_CODE = 200;
+
   app.route('/api/books')
     .get(function (req, res){
       //response will be array of book objects
@@ -94,10 +97,12 @@ module.exports = function (app) {
         }
       }, (err, results) => {
           if(err) {
-            res.status(200).json(err);
+            res.status(FAIL_CODE).json(err);
           }
-          res.status(200).json(results);
-          //.send('complete delete successful');
+          res.status(SUCCESS_CODE).send(results.book.deletedCount >= 1
+             ? 'complete delete successful'
+             : 'no books exist'
+          );
       })
     });
 
@@ -146,6 +151,8 @@ module.exports = function (app) {
             .exec(callback)
         },
         function comment_create(book, callback) {
+          if(!book)
+            return callback(null, null)
           new Comment({
             content: comment,
             book: book._id
@@ -158,6 +165,8 @@ module.exports = function (app) {
           )
         },
         function comments_view(book, callback) {
+          if(!book)
+            return callback(null, null);
           Comment
             .find({bookid: book._id})
             .select('_id, content')
@@ -170,12 +179,11 @@ module.exports = function (app) {
             })
         }
       ], function(err, results) {
-        if(err || results.book == null) {
-          const resWithCode = res.status(200);
-          return results.book == null || (err.name == 'CastError' 
-            && err.path == '_id')
-            ? resWithCode.send('no book exists')
-            : resWithCode.json({...err})
+        if(err) {
+          return res.status(FAIL_CODE).json(err);
+        }
+        if(results == null) {
+          return res.status(SUCCESS_CODE).send('no book exists');
         }
         const comments = results.comments.map(comment => comment.content)
         const {_id, title} = results.book;
@@ -191,7 +199,6 @@ module.exports = function (app) {
     
     .delete(function(req, res){
       let bookid = req.params.id;
-      //if successful response will be 'delete successful'
 
       async.parallel({
         book(callback) {
@@ -204,15 +211,14 @@ module.exports = function (app) {
             .deleteMany({book: bookid})
             .exec(callback)
         }
-      }, (err, results) => {
+      }, (err, result) => {
           if(err) {
-            const resWithCode = res.status(200);
-            return err.name == 'CastError' 
-              && (err.path == 'book' || err.path == '_id')
-              ? resWithCode.send('no book exists')
-              : resWithCode.json(err)
+            return res.status(FAIL_CODE).json(err);
           }
-          res.status(200).send('delete successful');
+          res.status(SUCCESS_CODE).send(result.book.deletedCount >= 1
+            ? 'delete successful'
+            : 'no book exists'
+          );
       })
     });
   
